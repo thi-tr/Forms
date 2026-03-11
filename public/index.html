@@ -29,5 +29,27 @@
         <input type="submit" value="Log in">
         -->
     </form>
+
+    <br><hr>
+    <form action="submit">
+        <select name="favoritecharacter[]" multiple>
+            <optgroup label="Major Char"> 
+                <option>Jerry</option>
+                <option>George</option>
+                <option selected="selected">Kramer</option>
+                <option>Elaine</option>
+            </optgroup>
+            <optgroup label="Minor Char">
+                <option>Newman</option>
+            </optgroup>
+
+        </select>
+        <label for="visa"><input type="radio" name="cc" id="visa" value="visa" checked> Visa </label><br>
+        <label for="mc"><input type="radio" name="cc" id="mc" value="mc">MasterCard </label> <br>
+        <label for="amex"><input type="radio" name="cc" id="amex" value="amex">Amex </label> <br>
+        <input type="hidden" name="school" value="NYIT"> <br>
+        <input type="reset">
+        <input type="submit">
+    </form>
 </body>
 </html>
