@@ -3,16 +3,39 @@ const router = express.Router();
 const {readFile} = require('fs').promises;
 //work goes here
 
-router.get("/", (req,res)=>{
+router.get("/", async (req,res)=>{
     //Get 4 words, with their pos and def and send back to their other page
-
+    let chosenWords = await getWords();
     //send those back and redner quiz.ejs
+    console.log("Chosen Words: ", chosenWords);
+    res.render('quiz', {chosenWords});
 });
 
 let getWords = async ()=>{
     //get a random part of speech
-    let randomPart = getRandomPart();
+    console.log("Getting random part!")
+    let randomPart = getRandomPart(); //i should have known verb or adjective
     //based on that, pick 4 words that match
+    console.log("Random part: ", randomPart);
+    let allWords = await readFile('resources/allwords.txt', 'utf8'); //Reads allwords as 1 giant string
+    // console.log(allWords);
+    let wordArray = allWords.split('\n'); //splits the single string into an array where each line is an index
+    // console.log(wordArray);
+    shuffle(wordArray); //shuffle that array
+
+    let choices = [];
+    while(choices.length < 5){ //keep looping until we get 5 choices
+        let line = wordArray.pop();
+        // let [word, part, def] = line.split('\t'); This is the same as the code below
+        let tokens = line.split('\t');
+        let word = tokens[0];
+        let part = tokens[1];
+        let def = tokens [2];
+        if (part === randomPart){ //If the part of my word matches the random part we picked, we keep it
+            choices.push(line)
+        }
+    }
+    return choices;
 }
 let getRandomPart = ()=>{
     let parts = ['noun', 'verb', 'adjective'];
@@ -23,10 +46,11 @@ let getRandomPart = ()=>{
 
 let shuffle = (array) =>{
     //fisher Yates algorithm
-    for(let i = 0; i<array.length - 1; i--){
+    for(let i=array.length-1; i>0; i--){
         let randomNumber = Math.floor(Math.random()*(i+1));
         [array[i], array[randomNumber]] = [array[randomNumber], array[i]];
     }
+    console.log("Array shuffled!")
 }
 
 
