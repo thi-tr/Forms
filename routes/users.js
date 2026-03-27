@@ -24,7 +24,7 @@ router.get('/list', (req,res) =>{
     res.render('users/list', {users})
 });
 router.get('/new', (req, res)=>{ // /users/new
-    res.render('users/new', {firstName: "First", lastName: "Last", gender: "M/F", age: "00"});
+    res.render('users/new', {firstName: "First", lastName: "Last", gender: "Male/Female", age: "00"});
 });
 //router.get('/:id', (req, res)=>{
 // res.send(`Getting User Data: ${req.params.id}`);
@@ -41,8 +41,8 @@ router.route('/:id').get((req, res)=>{
     res.send(`Updating User data for id: ${req.params.id}`);
 });
 
-const users = [{firstName: "Thi", lastName: "Tran", gender: "F", age: "22"}, 
-               {firstName: "Danny", lastName: "Brown", gender: "M", age: "26"}];
+const users = [{firstName: "Thi", lastName: "Tran", gender: "Female", age: "22"}, 
+               {firstName: "Danny", lastName: "Brown", gender: "Male", age: "26"}];
 router.param("id", (req, res, next, id) =>{
     req.user = users[id];
     next();
