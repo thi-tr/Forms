@@ -10,23 +10,51 @@ router.get("/", async (req,res)=>{
     console.log("Chosen Words: ", chosenWords);
     res.render('quiz', {chosenWords});
 });
-router.post("/", (req,res)=>{
+router.post("/", async (req,res)=>{
     console.log(req.body);
-    let {userChoice, correctDef, totalQuestions, totalCorrect} = req.body;
-    if(userChoice === correctDef){
-        console.log("User guessed correctly!");
-        let score = totalCorrect +1
+    //7 variables rendered
+    let chosenWords = req.body.chosenWords;
+    const chosenWord = req.body.chosenWord;
+    const isAnswered = (req.body.isAnswered === 'true'); //reads boolean because of req.body
+    const userChoice = req.body.userChoice;
+    const correctDef = req.body.correctDef;
+    const totalQuestions = parseInt(req.body.totalQuestions); //error, string concatenation
+    const totalCorrect = parseInt(req.body.totalCorrect);
+
+
+    let score = 0;
+    let total;
+    //renders correct answer of previous word question
+    if(isAnswered){
+        if(userChoice === correctDef){
+            console.log("User guessed correctly!");
+            score = totalCorrect +1;
+        }else{
+            console.log("User guessed incorrectly!");
+            score = totalCorrect;
+        }
+        total = totalQuestions + 1;
+        //console.log("Test");
+        res.render('quiz', {isAnswered: isAnswered, chosenWords:chosenWords, chosenWord:chosenWord,
+                            totalQuestions:total, totalCorrect:score, userChoice:userChoice, 
+                            correctDef:correctDef}); 
+    //renders new chosenWords and new question
+    }else{
+        score = totalCorrect;
+        total = totalQuestions;
+        chosenWords = await getWords();
+        console.log("Chosen Words: ", chosenWords);
+        res.render('quiz', {isAnswered: isAnswered, chosenWords:chosenWords, chosenWord:chosenWord,
+                            totalQuestions:total, totalCorrect:score, userChoice:userChoice, 
+                            correctDef:correctDef});
     }
-    let total = totalQuestions +1;
-    //Get another new set of words...how?
-    //Send that set of words back with the user score
-    //Send some other data back
 });
+
 
 let getWords = async ()=>{
     //get a random part of speech
     console.log("Getting random part!")
-    let randomPart = getRandomPart(); //i should have known verb or adjective
+    let randomPart = getRandomPart(); //i should have noun verb or adjective
     //based on that, pick 4 words that match
     console.log("Random part: ", randomPart);
     let allWords = await readFile('resources/allwords.txt', 'utf8'); //Reads allwords as 1 giant string
