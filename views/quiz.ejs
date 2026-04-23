@@ -1,26 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="/quiz.css">
     <title>Document</title>
 </head>
 <body>
     <% 
+        let isAnswered = locals.isAnswered ?? false;
         let questionCount = locals.totalQuestions ?? 0;
         let score = locals.totalCorrect ?? 0;
-        let randomIndex = parseInt(Math.random()*chosenWords.length); //generate a random index
-        let chosenWord = chosenWords[randomIndex]; //pick that as out correct word
+        let chosenWord = locals.chosenWord ?? ''; //save previous word
+
+        if(!isAnswered){
+            let randomIndex = parseInt(Math.random()*chosenWords.length); //generate a random index
+            //console.log(randomIndex);
+            chosenWord = chosenWords[randomIndex]; //pick that as out correct word
+        }
         let [correctWord, correctPart, correctDef] = chosenWord.split('\t'); //breaking it up into 3 pieces
     %>
     <% if (questionCount===0){ %>
         <h1>Welcome to the word quiz!</h1>
     <%} else{ %>
         <h1>Score: <%=score%> / <%= questionCount %></h1>
-    <%} %>
-    <!--Show the word and part of speech-->
-    <h2><%= correctWord %> - <%= correctPart %></h2>
-    <form action="quiz" method ="post"> <!--submits to quiz.js-->
-    <ol>
-        <% for(currentWord of chosenWords){ 
+    <%}%>
+
+
+    <form action="quiz" method ="post">
+    <!--submits to quiz.js-->
+    <!--if/else statement for question.
+    if answered, answer is posted.
+    else, next question-->
+    <%if(isAnswered){ %>
+        <h2><%= correctWord %> - <%= correctPart %></h2>
+        <ol>
+            <% for(let i = 0; i < chosenWords.length; i++){ 
+                let [word, part, def] = chosenWords[i].split('\t');
+                //correct choice or def
+                if((def === correctDef)){%>
+                    <li> 
+                        <label>
+                            <input type="radio" name="userChoice" value="<%= def %>"
+                            <%= (def === userChoice) ? 'checked':''%>>
+                            <span class="correct"> <%= def %> </span>
+                        </label> 
+                    </li>
+                <%} //incorrect choice
+                else if(def === userChoice){%>
+                    <li> 
+                        <label>
+                            <input type="radio" name="userChoice" value="<%= def %>" checked>
+                            <span class="incorrect"> <%= def %> </span>
+                        </label> 
+                    </li>
+                <%} //not chosen
+                else{ %>
+                    <li> 
+                        <label>
+                            <input type="radio" name="userChoice" value="<%= def %>"> <%= def %>
+                        </label> 
+                    </li>
+                <% } %>
+            <% } 
+            isAnswered = false;
+            //console.log(isAnswered); 
+            %>
+        </ol>
+        <input type="submit" value="Next">
+
+
+    <% } else{ %>
+        <h2><%= correctWord %> - <%= correctPart %></h2>
+        <ol>
+        <% for(currentWord of chosenWords){  
             //Loop though each word, show its definition only in the list
             let [word, part, def] = currentWord.split('\t'); %>
                 <li> 
@@ -29,12 +80,24 @@
                         <%= def %>
                     </label> 
                 </li>
-        <%} %>
-    </ol>
-    <input type="submit" value="Submit Answer!">
+        <% } 
+        isAnswered = true;
+        %>
+        </ol>
+        <input type="submit" value="Submit Answer!">
+    <%} %>
+
+
     <input type="hidden"  name="correctDef" value="<%=correctDef %>">
     <input type="hidden"  name="totalQuestions" value="<%=questionCount %>">
     <input type="hidden"  name="totalCorrect" value="<%=score %>">
+    <input type="hidden" name="isAnswered" value="<%=isAnswered%>">
+    <input type="hidden" name="chosenWord" value="<%=chosenWord%>">
+    <% //save each word in chosenWords
+    for(word of chosenWords){ %>
+        <input type="hidden" name="chosenWords" value="<%=word%>">
+    <% } %>
+
     </form>
 </body>
 </html>
